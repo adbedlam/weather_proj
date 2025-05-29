@@ -21,11 +21,6 @@ ___
     
     docker run -p 8000:8000 weather_app
 
-#### 2. 
-    docker load < weather_app.tar
-
-    docker run -p 8000:8000 weather_app
-
 
 Перейти по адресу `http://localhost:8000`
 ___
