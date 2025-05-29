@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Прогноз погоды</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f1f1;
+            padding: 2rem;
+            color: #333;
+        }
+        h1 {
+            color: #005f9e;
+        }
+        form {
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #005f9e;
+            color: white;
+        }
+        .note {
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Прогноз погоды</h1>
+
+{% if last_city %}
+    <p class="note">Вы ранее смотрели погоду в: <strong>{{ last_city }}</strong></p>
+{% endif %}
+
+<form method="get">
+  <input type="text" name="city" id="city-input" placeholder="Введите город..." autocomplete="off" required>
+    <ul id="suggestions" style="list-style:none; padding: 0;"></ul>
+
+    <button type="submit">Показать погоду</button>
+</form>
+
+{% if weather %}
+    <h2>Температура по часам (°C)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Температура</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hour, temp in hourly_data %}
+                <tr>
+                    <td>{{ hour|slice:"11:16" }}</td>
+                    <td>{{ temp }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+</body>
+
+<script>
+const input = document.getElementById('city-input');
+const suggestionsBox = document.getElementById('suggestions');
+
+input.addEventListener('input', function() {
+    const query = input.value;
+    if (query.length < 2) {
+        suggestionsBox.innerHTML = '';
+        return;
+    }
+
+    fetch(`/autocomplete/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            suggestionsBox.innerHTML = '';
+            data.forEach(city => {
+                const li = document.createElement('li');
+                li.textContent = city;
+                li.style.cursor = 'pointer';
+                li.addEventListener('click', () => {
+                    input.value = city;
+                    suggestionsBox.innerHTML = '';
+                });
+                suggestionsBox.appendChild(li);
+            });
+        });
+});
+</script>
+
+</html>
